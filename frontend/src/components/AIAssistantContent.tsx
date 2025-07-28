@@ -137,7 +137,7 @@ const AIAssistantContent: React.FC = () => {
       return;
     }
     try {
-      const response = await fetch('http://34.47.179.91:8000/api/ai-ml/chats', {
+      const response = await fetch('https://api.digitizeindia.co.in/api/ai-ml/chats', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
