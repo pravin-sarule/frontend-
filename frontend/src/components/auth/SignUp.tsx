@@ -541,7 +541,7 @@ const SignUp: React.FC<SignUpProps> = ({ onAuth }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ username?: string; email?: string; password?: string }>({});
 
-  const API_BASE = 'http://34.47.179.91:8000/auth';
+  const API_BASE = 'https://34.47.179.91:8000/auth';
 
   const validate = () => {
     const newErrors: typeof errors = {};
