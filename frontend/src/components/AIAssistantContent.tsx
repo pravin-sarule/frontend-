@@ -177,7 +177,7 @@ const AIAssistantContent: React.FC = () => {
       return;
     }
     try {
-      const response = await fetch('http://localhost:8000/api/ai-ml/chats', {
+      const response = await fetch('https://34.47.179.91:8000/api/ai-ml/chats', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
