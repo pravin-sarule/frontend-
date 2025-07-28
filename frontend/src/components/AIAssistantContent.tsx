@@ -177,7 +177,7 @@ const AIAssistantContent: React.FC = () => {
       return;
     }
     try {
-      const response = await fetch('https://34.47.179.91:8000/api/ai-ml/chats', {
+      const response = await fetch('https://api.digitizeindia.co.in/api/ai-ml/chats', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -211,7 +211,7 @@ const AIAssistantContent: React.FC = () => {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:8000/api/ai-ml/chats/${chatId}/messages`, {
+      const response = await fetch(`https://api.digitizeindia.co.in/api/ai-ml/chats/${chatId}/messages`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -247,7 +247,7 @@ const AIAssistantContent: React.FC = () => {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:8000/api/ai-ml/chats/${chatId}`, {
+      const response = await fetch(`https://api.digitizeindia.co.in/api/ai-ml/chats/${chatId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -286,7 +286,7 @@ const AIAssistantContent: React.FC = () => {
       return;
     }
     try {
-      const response = await fetch('http://localhost:8000/api/ai-ml/user_documents', {
+      const response = await fetch('https://api.digitizeindia.co.in/api/ai-ml/user_documents', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -329,7 +329,7 @@ const AIAssistantContent: React.FC = () => {
           }
 
           try {
-            const response = await fetch(`http://localhost:8000/api/ai-ml/document_status/${numericDocId}`, {
+            const response = await fetch(`https://api.digitizeindia.co.in/api/ai-ml/document_status/${numericDocId}`, {
               headers: {
                 'Authorization': `Bearer ${token}`,
               },
@@ -355,7 +355,7 @@ const AIAssistantContent: React.FC = () => {
 
             if (statusData.status === 'COMPLETED') {
               // Document completed, fetch summary
-              const summaryRes = await fetch(`http://localhost:8000/api/ai-ml/get_summary/${numericDocId}`, {
+              const summaryRes = await fetch(`https://api.digitizeindia.co.in/api/ai-ml/get_summary/${numericDocId}`, {
                 headers: {
                   'Authorization': `Bearer ${token}`,
                 },
@@ -465,7 +465,7 @@ const AIAssistantContent: React.FC = () => {
         }
 
         try {
-          const uploadRes = await fetch('http://localhost:8000/api/ai-ml/process_document', {
+          const uploadRes = await fetch('https://api.digitizeindia.co.in/api/ai-ml/process_document', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -537,7 +537,7 @@ const AIAssistantContent: React.FC = () => {
  
           console.log('Sending query payload:', queryPayload);
  
-          const response = await fetch('http://localhost:8000/api/ai-ml/answer_query', {
+          const response = await fetch('https://api.digitizeindia.co.in/api/ai-ml/answer_query', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
