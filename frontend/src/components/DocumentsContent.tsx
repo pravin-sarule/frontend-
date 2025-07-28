@@ -37,7 +37,7 @@ const DocumentsContent: React.FC<DocumentsContentProps> = ({ onNavigate }) => {
     }
 
     try {
-      const response = await fetch('https://34.47.179.91:8000/api/ai-ml/user_documents', {
+      const response = await fetch('https://api.digitizeindia.co.in/api/ai-ml/user_documents', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
