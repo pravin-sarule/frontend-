@@ -1098,7 +1098,7 @@ const SignIn: React.FC<SignInProps> = ({ onAuth }) => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
-  const API_BASE = 'https://34.47.179.91:8000/auth';
+  const API_BASE = 'https://api.digitizeindia.co.in/auth';
 
   const validate = () => {
     const newErrors: typeof errors = {};
