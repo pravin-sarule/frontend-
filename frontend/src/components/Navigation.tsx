@@ -460,7 +460,7 @@ const Navigation: React.FC<NavigationProps> = ({ onNavigateToSettings }) => {
         <div className="flex items-center space-x-6">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-white rounded-xl shadow-lg flex items-center justify-center">
-              <img src="/Ai logo-01.png" alt="Logo" className="w-8 h-8 object-contain" />
+              <img src="/NEXINTEL AI PVT. LTD LOGO FINAL .jpg" alt="Logo" className="w-8 h-8 object-contain" />
             </div>
             <div className="hidden sm:block">
               <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-900 bg-clip-text text-transparent">NexIntel Legal AI</span>
