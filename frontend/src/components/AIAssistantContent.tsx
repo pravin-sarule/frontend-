@@ -1,5 +1,312 @@
 
 
+// import React, { useState, useRef, useEffect } from 'react';
+// import { Bot, Send, User, Plus, Mic, Loader, FileText, X, Copy, Check } from 'lucide-react';
+// import RightSidebar from './RightSidebar';
+
+// interface Message {
+//   id: number;
+//   type: 'ai' | 'user' | 'system';
+//   content: string;
+//   timestamp: string;
+//   documentId?: string;
+//   sender?: 'user' | 'assistant';
+//   message?: string;
+//   chat_id?: number;
+//   created_at?: string;
+// }
+
+// interface Chat {
+//   id: number;
+//   user_id: number;
+//   title: string;
+//   created_at: string;
+//   messages: Message[];
+// }
+
+// interface Document {
+//   id: number;
+//   document_name: string;
+//   input_bucket_path: string;
+//   output_bucket_path: string | null;
+//   file_type: string;
+//   uploaded_at: string;
+//   processed: boolean;
+// }
+
+// const AIAssistantContent: React.FC = () => {
+//   const [messages, setMessages] = useState<Message[]>([]);
+//   const [inputMessage, setInputMessage] = useState('');
+//   const [isTyping, setIsTyping] = useState(false);
+//   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+//   const [summarizationInstruction, setSummarizationInstruction] = useState('');
+//   const [isRecording, setIsRecording] = useState(false);
+//   const [processingDocuments, setProcessingDocuments] = useState<{[key: number]: {filename: string, status: string, message: string}}>({});
+//   const [availableDocuments, setAvailableDocuments] = useState<Document[]>([]);
+//   const [selectedDocumentsForQuery, setSelectedDocumentsForQuery] = useState<Document[]>([]);
+//   const [lastProcessedDocumentId, setLastProcessedDocumentId] = useState<number | null>(null);
+//   const [showAddOptions, setShowAddOptions] = useState(false);
+//   const [showSelectDocumentModal, setShowSelectDocumentModal] = useState(false);
+//   const [loadingAvailableDocs, setLoadingAvailableDocs] = useState(true);
+//   const [errorAvailableDocs, setErrorAvailableDocs] = useState<string | null>(null);
+//   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
+//   const [chatList, setChatList] = useState<Chat[]>([]);
+//   const [loadingChatList, setLoadingChatList] = useState(true);
+//   const [errorChatList, setErrorChatList] = useState<string | null>(null);
+//   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
+
+//   const recognitionRef = useRef<any>(null);
+//   const messagesEndRef = useRef<HTMLDivElement>(null);
+//   const chatContainerRef = useRef<HTMLDivElement>(null);
+//   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+//   const scrollToBottom = () => {
+//     if (messagesEndRef.current) {
+//       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+//     }
+//   };
+
+//   useEffect(() => {
+//     scrollToBottom();
+//   }, [messages]);
+
+//   // Auto-resize textarea
+//   useEffect(() => {
+//     if (textareaRef.current) {
+//       textareaRef.current.style.height = 'auto';
+//       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+//     }
+//   }, [inputMessage]);
+
+//   // Fetch chat list on component mount
+//   useEffect(() => {
+//     fetchChatList();
+//   }, []);
+
+//   // Helper function to normalize backend message format to frontend format
+//   const normalizeMessage = (msg: any): Message => {
+//     let formattedTimestamp = '';
+//     const timestampSource = msg.created_at || msg.timestamp;
+    
+//     if (timestampSource) {
+//       try {
+//         let dateString = String(timestampSource);
+//         const microsecondRegex = /(\.\d{3})\d+/;
+//         dateString = dateString.replace(microsecondRegex, '$1');
+
+//         const date = new Date(dateString);
+//         if (!isNaN(date.getTime())) {
+//           formattedTimestamp = date.toLocaleTimeString();
+//         } else {
+//           console.warn('Invalid timestamp:', timestampSource);
+//           formattedTimestamp = 'Invalid Date';
+//         }
+//       } catch (error) {
+//         console.warn('Error parsing timestamp:', timestampSource, error);
+//         formattedTimestamp = 'Invalid Date';
+//       }
+//     } else {
+//       formattedTimestamp = new Date().toLocaleTimeString();
+//     }
+
+//     const content = msg.message || msg.content || '';
+
+//     let type: 'ai' | 'user' | 'system' = 'system';
+//     if (msg.sender === 'user') {
+//       type = 'user';
+//     } else if (msg.sender === 'assistant') {
+//       type = 'ai';
+//     } else if (msg.type) {
+//       type = msg.type;
+//     }
+
+//     return {
+//       id: msg.id,
+//       type,
+//       content,
+//       timestamp: formattedTimestamp,
+//       documentId: msg.documentId,
+//       sender: msg.sender,
+//       message: msg.message,
+//       chat_id: msg.chat_id,
+//       created_at: msg.created_at
+//     };
+//   };
+
+//   const fetchChatList = async () => {
+//     setLoadingChatList(true);
+//     setErrorChatList(null);
+//     const token = localStorage.getItem('token');
+//     if (!token) {
+//       setErrorChatList('Authentication token not found. Please sign in.');
+//       setLoadingChatList(false);
+//       return;
+//     }
+//     try {
+//       const response = await fetch('https://api.digitizeindia.co.in/api/ai-ml/chats', {
+//         headers: {
+//           'Authorization': `Bearer ${token}`,
+//         },
+//       });
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new Error(errorData.detail || 'Failed to fetch chat list');
+//       }
+//       const data: Chat[] = await response.json();
+//       setChatList(data);
+      
+//       const storedChatId = localStorage.getItem('currentChatId');
+      
+//       if (storedChatId && data.some(chat => chat.id === parseInt(storedChatId))) {
+//         handleLoadChat(parseInt(storedChatId));
+//       } else if (!currentChatId && data.length > 0) {
+//         handleLoadChat(data[0].id);
+//       } else if (!currentChatId && data.length === 0) {
+//         setMessages([]);
+//       }
+//     } catch (error: any) {
+//       setErrorChatList(error.message);
+//       console.error('Error fetching chat list:', error);
+//     } finally {
+//       setLoadingChatList(false);
+//     }
+//   };
+
+//   const handleNewChat = async () => {
+//     const token = localStorage.getItem('token');
+//     if (!token) {
+//       alert('Authentication token not found. Please sign in.');
+//       return;
+//     }
+//     try {
+//       const response = await fetch('https://api.digitizeindia.co.in/api/ai-ml/chats', {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//           'Authorization': `Bearer ${token}`,
+//         },
+//         body: JSON.stringify({ title: "New Chat" }),
+//       });
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new Error(errorData.detail || 'Failed to create new chat');
+//       }
+//       const newChat: Chat = await response.json();
+//       setChatList(prev => [newChat, ...prev]);
+//       setCurrentChatId(newChat.id);
+      
+//       localStorage.setItem('currentChatId', newChat.id.toString());
+      
+//       setMessages([]);
+      
+//     } catch (error: any) {
+//       alert(`Error creating new chat: ${error.message}`);
+//       console.error('Error creating new chat:', error);
+//     }
+//   };
+
+//   const handleLoadChat = async (chatId: number) => {
+//     const token = localStorage.getItem('token');
+//     if (!token) {
+//       alert('Authentication token not found. Please sign in.');
+//       return;
+//     }
+//     try {
+//       const response = await fetch(`https://api.digitizeindia.co.in/api/ai-ml/chats/${chatId}/messages`, {
+//         headers: {
+//           'Authorization': `Bearer ${token}`,
+//         },
+//       });
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new Error(errorData.detail || 'Failed to load chat messages');
+//       }
+//       const loadedMessages: any[] = await response.json();
+//       setCurrentChatId(chatId);
+      
+//       localStorage.setItem('currentChatId', chatId.toString());
+      
+//       const normalizedMessages = loadedMessages.map(normalizeMessage);
+//       setMessages(normalizedMessages);
+      
+//       scrollToBottom();
+//     } catch (error: any) {
+//       alert(`Error loading chat: ${error.message}`);
+//       console.error('Error loading chat messages:', error);
+//     }
+//   };
+
+//   const handleDeleteChat = async (chatId: number) => {
+//     if (!window.confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
+//       return;
+//     }
+//     const token = localStorage.getItem('token');
+//     if (!token) {
+//       alert('Authentication token not found. Please sign in.');
+//       return;
+//     }
+//     try {
+//       const response = await fetch(`https://api.digitizeindia.co.in/api/ai-ml/chats/${chatId}`, {
+//         method: 'DELETE',
+//         headers: {
+//           'Authorization': `Bearer ${token}`,
+//         },
+//       });
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new Error(errorData.detail || 'Failed to delete chat');
+//       }
+//       setChatList(prev => prev.filter(chat => chat.id !== chatId));
+//       if (currentChatId === chatId) {
+//         setCurrentChatId(null);
+//         setMessages([]);
+//         localStorage.removeItem('currentChatId');
+        
+//         const remainingChats = chatList.filter(chat => chat.id !== chatId);
+//         if (remainingChats.length > 0) {
+//           handleLoadChat(remainingChats[0].id);
+//         }
+//       }
+//     } catch (error: any) {
+//       alert(`Error deleting chat: ${error.message}`);
+//       console.error('Error deleting chat:', error);
+//     }
+//   };
+
+//   const fetchAvailableDocuments = async () => {
+//     setLoadingAvailableDocs(true);
+//     setErrorAvailableDocs(null);
+//     const token = localStorage.getItem('token');
+//     if (!token) {
+//       setErrorAvailableDocs('Authentication token not found. Please sign in.');
+//       setLoadingAvailableDocs(false);
+//       return;
+//     }
+//     try {
+//       const response = await fetch('https://api.digitizeindia.co.in/api/ai-ml/user_documents', {
+//         headers: {
+//           'Authorization': `Bearer ${token}`,
+//         },
+//       });
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new Error(errorData.detail || 'Failed to fetch available documents');
+//       }
+//       const data: Document[] = await response.json();
+//       setAvailableDocuments(data);
+//     } catch (error: any) {
+//       setErrorAvailableDocs(error.message);
+//       console.error('Error fetching available documents:', error);
+//     } finally {
+//       setLoadingAvailableDocs(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (showSelectDocumentModal) {
+//       fetchAvailableDocuments();
+//     }
+//   }, [showSelectDocumentModal]);
 import React, { useState, useRef, useEffect } from 'react';
 import { Bot, Send, User, Plus, Mic, Loader, FileText, X, Copy, Check } from 'lucide-react';
 import RightSidebar from './RightSidebar';
@@ -70,7 +377,6 @@ const AIAssistantContent: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -78,48 +384,35 @@ const AIAssistantContent: React.FC = () => {
     }
   }, [inputMessage]);
 
-  // Fetch chat list on component mount
   useEffect(() => {
     fetchChatList();
   }, []);
 
-  // Helper function to normalize backend message format to frontend format
   const normalizeMessage = (msg: any): Message => {
     let formattedTimestamp = '';
     const timestampSource = msg.created_at || msg.timestamp;
-    
     if (timestampSource) {
       try {
         let dateString = String(timestampSource);
         const microsecondRegex = /(\.\d{3})\d+/;
         dateString = dateString.replace(microsecondRegex, '$1');
-
         const date = new Date(dateString);
         if (!isNaN(date.getTime())) {
           formattedTimestamp = date.toLocaleTimeString();
         } else {
-          console.warn('Invalid timestamp:', timestampSource);
           formattedTimestamp = 'Invalid Date';
         }
       } catch (error) {
-        console.warn('Error parsing timestamp:', timestampSource, error);
         formattedTimestamp = 'Invalid Date';
       }
     } else {
       formattedTimestamp = new Date().toLocaleTimeString();
     }
-
     const content = msg.message || msg.content || '';
-
     let type: 'ai' | 'user' | 'system' = 'system';
-    if (msg.sender === 'user') {
-      type = 'user';
-    } else if (msg.sender === 'assistant') {
-      type = 'ai';
-    } else if (msg.type) {
-      type = msg.type;
-    }
-
+    if (msg.sender === 'user') type = 'user';
+    else if (msg.sender === 'assistant') type = 'ai';
+    else if (msg.type) type = msg.type;
     return {
       id: msg.id,
       type,
@@ -154,19 +447,16 @@ const AIAssistantContent: React.FC = () => {
       }
       const data: Chat[] = await response.json();
       setChatList(data);
-      
       const storedChatId = localStorage.getItem('currentChatId');
-      
-      if (storedChatId && data.some(chat => chat.id === parseInt(storedChatId))) {
+      if (data.length === 0) {
+        await handleNewChat();
+      } else if (storedChatId && data.some(chat => chat.id === parseInt(storedChatId))) {
         handleLoadChat(parseInt(storedChatId));
-      } else if (!currentChatId && data.length > 0) {
+      } else {
         handleLoadChat(data[0].id);
-      } else if (!currentChatId && data.length === 0) {
-        setMessages([]);
       }
     } catch (error: any) {
       setErrorChatList(error.message);
-      console.error('Error fetching chat list:', error);
     } finally {
       setLoadingChatList(false);
     }
@@ -194,14 +484,10 @@ const AIAssistantContent: React.FC = () => {
       const newChat: Chat = await response.json();
       setChatList(prev => [newChat, ...prev]);
       setCurrentChatId(newChat.id);
-      
       localStorage.setItem('currentChatId', newChat.id.toString());
-      
       setMessages([]);
-      
     } catch (error: any) {
       alert(`Error creating new chat: ${error.message}`);
-      console.error('Error creating new chat:', error);
     }
   };
 
@@ -223,23 +509,17 @@ const AIAssistantContent: React.FC = () => {
       }
       const loadedMessages: any[] = await response.json();
       setCurrentChatId(chatId);
-      
       localStorage.setItem('currentChatId', chatId.toString());
-      
       const normalizedMessages = loadedMessages.map(normalizeMessage);
       setMessages(normalizedMessages);
-      
       scrollToBottom();
     } catch (error: any) {
       alert(`Error loading chat: ${error.message}`);
-      console.error('Error loading chat messages:', error);
     }
   };
 
   const handleDeleteChat = async (chatId: number) => {
-    if (!window.confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
-      return;
-    }
+    if (!window.confirm('Are you sure you want to delete this chat?')) return;
     const token = localStorage.getItem('token');
     if (!token) {
       alert('Authentication token not found. Please sign in.');
@@ -261,15 +541,15 @@ const AIAssistantContent: React.FC = () => {
         setCurrentChatId(null);
         setMessages([]);
         localStorage.removeItem('currentChatId');
-        
         const remainingChats = chatList.filter(chat => chat.id !== chatId);
         if (remainingChats.length > 0) {
           handleLoadChat(remainingChats[0].id);
+        } else {
+          await handleNewChat();
         }
       }
     } catch (error: any) {
       alert(`Error deleting chat: ${error.message}`);
-      console.error('Error deleting chat:', error);
     }
   };
 
@@ -293,10 +573,12 @@ const AIAssistantContent: React.FC = () => {
         throw new Error(errorData.detail || 'Failed to fetch available documents');
       }
       const data: Document[] = await response.json();
+      if (data.length === 0) {
+        console.info("No documents found for user.");
+      }
       setAvailableDocuments(data);
     } catch (error: any) {
       setErrorAvailableDocs(error.message);
-      console.error('Error fetching available documents:', error);
     } finally {
       setLoadingAvailableDocs(false);
     }
