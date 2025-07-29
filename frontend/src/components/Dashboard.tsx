@@ -53,12 +53,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onSignOut }) => {
         {/* Conditional layout based on component needs */}
         {isAIAssistant ? (
           // AI Assistant: Fixed height with internal scrolling
-          <main className="flex-1 h-screen overflow-hidden bg-white" style={{ height: 'calc(100vh - 64px)' }}>
+          <main className={`flex-1 h-screen overflow-hidden bg-white transition-all duration-300 ease-out ${isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-80'}`} style={{ height: 'calc(100vh - 64px)' }}>
             <Outlet />
           </main>
         ) : (
           // Other components: Scrollable layout with internal padding
-          <main className="flex-1 bg-white overflow-y-auto">
+          <main className={`flex-1 bg-white overflow-y-auto transition-all duration-300 ease-out ${isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-80'}`}>
             <div className="p-6">
               <div className="max-w-7xl mx-auto">
                 <Outlet />

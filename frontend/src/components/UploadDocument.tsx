@@ -46,24 +46,38 @@ const UploadDocument: React.FC<UploadDocumentProps> = ({ onBack }) => {
     });
 
     setUploadedFiles(prev => [...prev, ...validFiles]);
-    
-    // Simulate upload process
+
     validFiles.forEach(file => {
       setUploadStatus(prev => ({ ...prev, [file.name]: 'uploading' }));
       setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
-      
-      // Simulate progress
-      const interval = setInterval(() => {
-        setUploadProgress(prev => {
-          const currentProgress = prev[file.name] || 0;
-          if (currentProgress >= 100) {
-            clearInterval(interval);
-            setUploadStatus(prevStatus => ({ ...prevStatus, [file.name]: 'success' }));
-            return prev;
-          }
-          return { ...prev, [file.name]: currentProgress + 10 };
-        });
-      }, 200);
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const token = localStorage.getItem('token'); // Assuming token is stored in localStorage
+
+      fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
+        setUploadStatus(prev => ({ ...prev, [file.name]: 'success' }));
+        console.log('Upload successful:', data);
+      })
+      .catch(error => {
+        setUploadStatus(prev => ({ ...prev, [file.name]: 'error' }));
+        console.error('Upload failed:', error);
+      });
     });
   };
 
